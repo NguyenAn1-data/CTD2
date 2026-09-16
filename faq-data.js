@@ -242,9 +242,6 @@ CFOs require concrete financial attribution. AI Campus measures ROI using an **E
 3. **Decision Latency Dividend:**
    * Accelerates strategic execution cycles from weeks to minutes, allowing your business to seize supplier discounts or spot market arbitrage ahead of competitors.
 
-### Formalized ROI Calculation Framework:
-$$\\text{Net Enterprise Value} = (\\Delta \\text{Margin} + \\Delta \\text{Working Capital Savings} + \\Delta \\text{Labor Efficiency}) - \\text{TCO}$$
-
 > AI Campus includes a built-in **Value Realization Tracker** dashboard that reports weekly realized savings directly to your finance committee.`,
     tags: ["roi", "financial impact", "business value", "cfo", "cost reduction", "metrics", "payback"],
     followUps: ["faq-1", "faq-10"]

@@ -33,7 +33,8 @@ const elements = {
   themeIcon: document.getElementById('themeIcon'),
   inputChipsBar: document.getElementById('inputChipsBar'),
   typingIndicator: document.getElementById('typingIndicator'),
-  typingStatusText: document.getElementById('typingStatusText')
+  typingStatusText: document.getElementById('typingStatusText'),
+  scrollToBottomBtn: document.getElementById('scrollToBottomBtn')
 };
 
 // ==========================================================================
@@ -249,16 +250,86 @@ function bindEvents() {
       if (qid) askQuestionById(qid);
     });
   });
+
+  // Scroll to bottom button
+  if (elements.scrollToBottomBtn) {
+    elements.scrollToBottomBtn.addEventListener('click', () => {
+      if (elements.chatMessagesContainer) {
+        elements.chatMessagesContainer.scrollTo({
+          top: elements.chatMessagesContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    });
+  }
+
+  // Monitor chat scroll to show/hide scroll to bottom button
+  if (elements.chatMessagesContainer && elements.scrollToBottomBtn) {
+    elements.chatMessagesContainer.addEventListener('scroll', () => {
+      const distFromBottom = elements.chatMessagesContainer.scrollHeight -
+                             elements.chatMessagesContainer.scrollTop -
+                             elements.chatMessagesContainer.clientHeight;
+      if (distFromBottom > 140) {
+        elements.scrollToBottomBtn.classList.add('visible');
+      } else {
+        elements.scrollToBottomBtn.classList.remove('visible');
+      }
+    });
+  }
+
+  // Mobile virtual keyboard & focus adjustments
+  if (elements.chatInput) {
+    elements.chatInput.addEventListener('focus', () => {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 260);
+    });
+  }
+
+  if (window.visualViewport && elements.chatMessagesContainer) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (document.activeElement === elements.chatInput) {
+        scrollToBottom();
+      }
+    });
+  }
+
+  // Touch Gestures: Swipe left to close sidebar, swipe from left edge to open
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+
+    // Horizontal swipe check: diffX is dominant over diffY
+    if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+      if (diffX < 0 && elements.sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else if (diffX > 0 && touchStartX < 45 && !elements.sidebar.classList.contains('open')) {
+        openSidebar();
+      }
+    }
+  }, { passive: true });
 }
 
 function openSidebar() {
   elements.sidebar.classList.add('open');
   elements.sidebarOverlay.classList.add('active');
+  document.body.classList.add('drawer-open');
 }
 
 function closeSidebar() {
   elements.sidebar.classList.remove('open');
   elements.sidebarOverlay.classList.remove('active');
+  document.body.classList.remove('drawer-open');
 }
 
 // ==========================================================================
@@ -779,7 +850,7 @@ function convertTableBufferToHtml(buffer) {
   });
   tableHtml += '</tbody></table>';
 
-  return tableHtml;
+  return `<div class="table-responsive-wrapper">${tableHtml}</div>`;
 }
 
 function escapeHtml(str) {
